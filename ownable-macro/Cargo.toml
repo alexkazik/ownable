@@ -1,0 +1,19 @@
+[package]
+name = "ownable-macro"
+version = "0.5.0"
+authors = ["ALeX Kazik <alex@kazik.de>"]
+edition = "2021"
+description = "Procedural macros for the ownable crate"
+repository = "https://github.com/alexkazik/ownable"
+license = "MIT OR Apache-2.0"
+keywords = []
+categories = []
+
+[dependencies]
+proc-macro2 = "1.0.52"
+proc-macro-error = { version = "1.0.4", default-features = false }
+quote = "1.0.26"
+syn = { version = "2", default-features = false, features = ["derive", "parsing", "printing", "proc-macro"] }
+
+[lib]
+proc-macro = true

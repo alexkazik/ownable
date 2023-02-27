@@ -1,0 +1,130 @@
+#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
+#![forbid(unsafe_code)]
+#![warn(missing_docs)]
+#![warn(clippy::pedantic)]
+#![allow(clippy::inline_always)]
+
+//! # Derive macro for structs/enums with Cow
+//!
+//! To automatically convert `Type<'a>` to `Type<'static>` and more.
+//!
+//! # Example
+//!
+//! This can be very helpful for types which use borrow with serde.
+//!
+//! ```rust
+//! # use std::borrow::Cow;
+//! # use ownable::{IntoOwned, ToBorrowed, ToOwned};
+//! #[derive(IntoOwned, ToBorrowed, ToOwned)]
+//! // #[derive(serde::Serialize, serde::Deserialize)]
+//! pub struct Type<'a> {
+//!   // #[serde(borrow)]
+//!   cow: Cow<'a, str>,
+//!   #[ownable(clone)] owned: String, // always clone this field
+//! }
+//! ```
+//!
+//! Will derive something functionally similar to:
+//! ```rust
+//! # extern crate alloc;extern crate core;
+//! # use core::borrow::Borrow;
+//! # use std::borrow::Cow;
+//! # struct Type<'a>{cow: Cow<'a, str>,owned: String}
+//! impl Type<'_> {
+//!   /// Copy the structure and clone the original values if it's not owned.
+//!   /// This is always a deep copy of the structure.
+//!   pub fn into_owned(self) -> Type<'static> {
+//!     Type {
+//!       cow: Cow::Owned(Cow::into_owned(self.cow)),
+//!       owned: self.owned.clone(), // always cloned, as requested
+//!     }
+//!   }
+//!   /// Copy the structure and clone the original values.
+//!   /// This is always a deep copy.
+//!   pub fn to_owned(&self) -> Type<'static> {
+//!     Type {
+//!       cow: Cow::Owned(str::to_owned(self.cow.borrow())),
+//!       owned: self.owned.clone(), // always cloned, as requested
+//!     }
+//!   }
+//!   /// Copy the structure and reference the original values.
+//!   /// This is always a deep copy of the structure.
+//!   pub fn to_borrowed(&self) -> Type {
+//!     Type {
+//!       cow: Cow::Borrowed(self.cow.borrow()),
+//!       owned: self.owned.clone(), // always cloned, as requested
+//!     }
+//!   }
+//! }
+//! ```
+//!
+//! But actually each function only calls a function of [traits](crate::traits), which are derived.
+//!
+//! If the derive does not work it can be implemented by hand and still derived for types which use it.
+//!
+//! # Possible Errors
+//!
+//!  If the following error occurs then one of the fields has a missing trait.
+//! ```text
+//! error[E0277]: the trait bound `String: IntoOwned` is not satisfied
+//! ```
+//!
+//! This can sometimes be fixed with `#[ownable(clone)]` as seen in the example above,
+//! otherwise [`AsCopy`](crate::AsCopy)/[`AsClone`](crate::AsClone) can help.
+//!
+//! And as the last resort the impl for the surrounding structure can be hand written.
+//!
+//! # AsCopy/AsClone
+//!
+//! If the impls for the copy types are not enough or `#[ownable(clone)]` does not work in that
+//! position then [`AsCopy`](crate::AsCopy) and [`AsClone`](crate::AsClone) can be used to wrap a value which then
+//! works in this environment as expected. Both are transparent and do use only exact the same
+//! space as the original type and all impls (Eq, Display, Hash, ...) only pass the calls though
+//! to the inner type
+//!
+//! ## Example
+//!
+//! Example of an more complex type:
+//! ```rust
+//! # use std::borrow::Cow;
+//! # use std::collections::HashMap;
+//! # use ownable::{AsClone, IntoOwned, ToBorrowed, ToOwned};
+//! #[derive(IntoOwned, ToBorrowed, ToOwned)]
+//! pub struct Type<'a> {
+//!   cow: Cow<'a, str>,
+//!   nested: Option<Box<Type<'a>>>,
+//!   map: HashMap<AsClone<String>, Cow<'a, str>>,
+//!   #[ownable(clone)] owned: String, // always clone this field
+//!   number: usize, // many copy types have a trait impl, and thus can be used without the `#[ownable(clone)]`
+//! }
+//! ```
+//!
+//! # Features
+//! * `std` - Traits are also implemented for types which are not in [core](::core) or [alloc](::alloc) (currently [`HashMap`](::std::collections::HashMap) and [`HashSet`](::std::collections::HashSet)).
+//!
+//! `std` is enabled by default.
+//!
+//! ## Usage
+//! With defaults (includes `std`):
+//! ```toml
+//! [dependencies]
+//! ownable = "0.5"
+//! ```
+//!
+//! With `no_std` (but still requires alloc):
+//! ```toml
+//! [dependencies]
+//! ownable = { version = "0.5", default-features = false }
+//! ```
+
+extern crate alloc;
+
+pub use crate::as_clone::AsClone;
+pub use crate::as_copy::AsCopy;
+pub use ownable_macro::{IntoOwned, ToBorrowed, ToOwned};
+
+mod as_clone;
+mod as_copy;
+mod as_impl;
+pub mod traits;

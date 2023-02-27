@@ -1,0 +1,10 @@
+readme-path = "README.md"
+line-terminator = "lf"
+workspace-project = "ownable"
+heading-base-level = 1
+
+[entrypoint]
+type = "lib"
+
+[intralinks]
+strip-links = true
