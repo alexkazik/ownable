@@ -181,6 +181,7 @@
 //!
 //! # Features
 //! * `std` - Traits are also implemented for types which are not in [core](::core) or [alloc](::alloc) (currently [`HashMap`](::std::collections::HashMap) and [`HashSet`](::std::collections::HashSet)).
+//! * `beef` - Traits are also implemented for `beef::Cow` (generic).
 //!
 //! `std` is enabled by default.
 //!

@@ -3,9 +3,15 @@
 version = 3
 
 [[package]]
+name = "beef"
+version = "0.5.2"
+source = "git+https://github.com/maciejhirsz/beef.git?rev=1cc0a4a#1cc0a4a944b9ed01b190560cd02fd6bdc5a0f9e6"
+
+[[package]]
 name = "ownable"
 version = "0.6.0"
 dependencies = [
+ "beef",
  "ownable-macro 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 

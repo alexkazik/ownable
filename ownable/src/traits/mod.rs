@@ -10,6 +10,8 @@ use alloc::boxed::Box;
 use alloc::collections::BTreeMap;
 use core::borrow::Borrow;
 
+#[cfg(feature = "beef")]
+mod beef;
 mod copy;
 mod iter;
 #[cfg(feature = "std")]

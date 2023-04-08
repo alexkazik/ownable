@@ -27,7 +27,7 @@ cargo rdme --force || exit 1
 # create docs
 if test "$TOOLCHAIN" = "+nightly"
 then
-  RUSTDOCFLAGS="--cfg docsrs" cargo +nightly doc -p ownable || exit 1
+  RUSTDOCFLAGS="--cfg docsrs" cargo +nightly doc -p ownable --all-features || exit 1
 else
   echo "Skipping 'cargo doc' with doc_cfg since it's only available on nightly"
 fi

@@ -165,6 +165,7 @@ pub struct Type<'a> {
 
 ## Features
 * `std` - Traits are also implemented for types which are not in core or alloc (currently `HashMap` and `HashSet`).
+* `beef` - Traits are also implemented for `beef::Cow` (generic).
 
 `std` is enabled by default.
 
