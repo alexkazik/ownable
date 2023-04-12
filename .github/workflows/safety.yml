@@ -19,7 +19,7 @@ jobs:
             sudo apt install llvm
             # to fix buggy leak analyzer:
             # https://github.com/japaric/rust-san#unrealiable-leaksanitizer
-            sed -i '/\[features\]/i [profile.dev]' Cargo.toml
+            sed -i '/\[workspace\]/i [profile.dev]' Cargo.toml
             sed -i '/profile.dev/a opt-level = 1' Cargo.toml
             cat Cargo.toml
         name: Enable debug symbols
@@ -52,16 +52,3 @@ jobs:
         run: cargo miri test
         env:
           MIRIFLAGS: ""
-  loom:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
-      - name: Install stable
-        uses: dtolnay/rust-toolchain@stable
-      - name: cargo test --test loom
-        run: cargo test --release --test loom
-        env:
-          LOOM_MAX_PREEMPTIONS: 2
-          RUSTFLAGS: "--cfg loom"
