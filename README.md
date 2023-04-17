@@ -62,8 +62,8 @@ If the derive does not work it can be implemented by hand and still derived for 
 
 ## Generics
 
-The derive macro supports these generics: lifetimes, types (no consts). And with bounds and
-as many as you want.
+The derive macro supports all kinds of generics: lifetimes, types, consts. And the first
+two with bounds and all as many times as you want.
 
 ## Possible Errors
 
