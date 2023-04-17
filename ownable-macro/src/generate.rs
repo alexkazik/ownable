@@ -20,6 +20,7 @@ impl Derive<'_> {
                 "ToBorrowed can be only derived for a struct with a lifetime"
             );
         }
+
         let name = &self.input.ident;
         let def_generics = self.generate_generics(None, false);
         let generics_dedup = self.generate_generics(Some("'a"), true);
@@ -27,6 +28,7 @@ impl Derive<'_> {
         let use_generics = self.generate_generics(Some("'_"), false);
         let trait_name = Mode::ToBorrowed.name();
         let doc = Mode::ToBorrowed.doc();
+
         quote! {
             impl #generics_dedup #trait_name <'a> for #name #generics
             {
@@ -35,10 +37,11 @@ impl Derive<'_> {
                 }
             }
 
-            impl #def_generics #name #use_generics {
+            impl #def_generics #name #use_generics
+            {
                 #[doc=#doc]
                 #[inline(always)]
-                pub fn to_borrowed(& self) -> #name #def_generics {
+                pub fn to_borrowed(&self) -> #name #def_generics {
                     #trait_name::to_borrowed(self)
                 }
             }
@@ -54,6 +57,7 @@ impl Derive<'_> {
         let trait_function = self.mode.function();
         let as_ref = self.mode.as_ref();
         let doc = self.mode.doc();
+
         quote! {
             impl #def_generics #trait_name for #name #use_generics
             {
@@ -62,6 +66,7 @@ impl Derive<'_> {
                     #inner
                 }
             }
+
             impl #def_generics #name #use_generics
             {
                 #[doc=#doc]
