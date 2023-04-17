@@ -22,7 +22,6 @@ impl Derive<'_> {
         }
 
         let name = &self.input.ident;
-        let def_generics = self.generate_generics(None, false);
         let generics_dedup = self.generate_generics(Some("'a"), true);
         let generics = self.generate_generics(Some("'a"), false);
         let use_generics = self.generate_generics(Some("'_"), false);
@@ -37,11 +36,11 @@ impl Derive<'_> {
                 }
             }
 
-            impl #def_generics #name #use_generics
+            impl #generics_dedup #name #generics
             {
                 #[doc=#doc]
                 #[inline(always)]
-                pub fn to_borrowed(&self) -> #name #def_generics {
+                pub fn to_borrowed(&self) -> #name #use_generics {
                     #trait_name::to_borrowed(self)
                 }
             }
