@@ -65,6 +65,50 @@ If the derive does not work it can be implemented by hand and still derived for 
 The derive macro supports all kinds of generics: lifetimes, types, consts. And the first
 two with bounds and all as many times as you want.
 
+## References
+
+References are not supported out of the box, because they can't be changed into an owned type.
+
+But it's possible to specify which lifetime(s) are used solely for references and then those
+will be always copied (the reference) and thus the lifetime is not changed.
+
+Please note that not only the type containing a reference but also types containing such a
+type are required to be marked.
+
+### Example
+
+```rust
+#[derive(IntoOwned, ToBorrowed, ToOwned)]
+#[ownable(reference = "'b")]
+pub struct Inner<'a, 'b> {
+  cow: Cow<'a, str>,
+  referenced: &'b str,
+}
+
+// Also types, containing types with references, must be marked.
+#[derive(IntoOwned, ToBorrowed, ToOwned)]
+#[ownable(reference = "'b")]
+pub struct Outer<'a, 'b> {
+  inner: Inner<'a, 'b>,
+}
+```
+Will derive functions with these signatures:
+```rust
+impl<'b> Inner<'_, 'b> {
+    pub fn into_owned(self) -> Inner<'static, 'b> {
+        // Call the trait, which is also derived
+    }
+    pub fn to_owned(&self) -> Inner<'static, 'b> {
+        // Call the trait, which is also derived
+    }
+    pub fn to_borrowed(&self) -> Inner<'_, 'b> {
+        // Call the trait, which is also derived
+    }
+}
+
+// The `Outer` will look similar.
+```
+
 ## Possible Errors
 
  If the following error occurs then one of the fields has a missing trait.
@@ -91,6 +135,11 @@ For an example see the at the top.
 
 With `#[ownable(function = false)]` at top level (enum/struct) the functions mentioned above
 are not implemented, only the traits.
+
+### reference
+
+With `#[ownable(reference = "..")]` one or more comma separated lifetimes can be supplied to
+be used for references only, see [References](#references) above.
 
 ## AsCopy/AsClone
 
