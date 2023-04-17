@@ -102,6 +102,10 @@ pub struct Param {
 }
 
 impl Param {
+    pub fn span(&self) -> &Span {
+        &self.span
+    }
+
     pub fn get_bool(&self) -> bool {
         if let Some(lit) = &self.lit {
             if let Lit::Bool(lit) = lit {
@@ -114,7 +118,6 @@ impl Param {
         }
     }
 
-    #[allow(dead_code)]
     pub fn opt_str(&self) -> Option<String> {
         if let Some(lit) = &self.lit {
             if let Lit::Str(lit) = lit {
@@ -127,7 +130,6 @@ impl Param {
         }
     }
 
-    #[allow(dead_code)]
     pub fn req_str(&self) -> String {
         self.opt_str()
             .unwrap_or_else(|| abort!(self.span, Error::MissingLiteral("str")))

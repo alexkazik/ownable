@@ -1,8 +1,9 @@
 use crate::attribute::{FieldAttribute, OrAssign};
 use crate::Derive;
 use proc_macro2::{Ident, Span, TokenStream};
+use proc_macro_error::abort;
 use quote::{quote, ToTokens};
-use syn::{FieldsNamed, FieldsUnnamed, LitInt, Variant};
+use syn::{FieldsNamed, FieldsUnnamed, LitInt, Type, TypeReference, Variant};
 
 impl Derive<'_> {
     pub(crate) fn derive_named(
@@ -22,6 +23,7 @@ impl Derive<'_> {
                 &field_attribute,
                 &name.into_token_stream(),
                 variant.is_none(),
+                &d.ty,
             );
             fields.push(quote! {#name: #call});
         }
@@ -50,6 +52,7 @@ impl Derive<'_> {
                     &field_attribute,
                     &Ident::new(&format!("arg{i}"), Span::call_site()).to_token_stream(),
                     false,
+                    &d.ty,
                 ));
             } else {
                 field_attribute.or_assign(self.attribute);
@@ -57,6 +60,7 @@ impl Derive<'_> {
                     &field_attribute,
                     &LitInt::new(&i.to_string(), Span::call_site()).to_token_stream(),
                     true,
+                    &d.ty,
                 ));
             }
         }
@@ -75,8 +79,25 @@ impl Derive<'_> {
         field_attribute: &FieldAttribute,
         index: &TokenStream,
         with_self: bool,
+        ty: &Type,
     ) -> TokenStream {
-        if field_attribute.clone.unwrap_or(false) {
+        if let Type::Reference(TypeReference {
+            lifetime: Some(l), ..
+        }) = ty
+        {
+            if self.attribute.is_reference_lifetime(&l.ident) {
+                if with_self {
+                    quote! { self . #index}
+                } else {
+                    quote! { #index }
+                }
+            } else {
+                abort!(
+                    ty,
+                    "References are not supported out of the box, see: https://docs.rs/ownable/*/ownable/#references"
+                )
+            }
+        } else if field_attribute.clone.unwrap_or(false) {
             if with_self {
                 quote! {::core::clone::Clone::clone(& self . #index)}
             } else {

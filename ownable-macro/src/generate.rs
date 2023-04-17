@@ -26,7 +26,7 @@ impl Derive<'_> {
             );
         }
 
-        let lifetime_our = &Lifetime::new("'a", Span::call_site());
+        let lifetime_our = &self.attribute.new_lifetime();
         let lifetime_placeholder = &Lifetime::new("'_", Span::call_site());
         let mut generics_definition = self.generate_generics(None);
         generics_definition
@@ -112,8 +112,10 @@ impl Derive<'_> {
 
         for gp in self.input.generics.params.iter() {
             match gp {
-                GenericParam::Lifetime(_) => {
-                    if let Some(lt) = lt {
+                GenericParam::Lifetime(l) => {
+                    if self.attribute.is_reference_lifetime(&l.lifetime.ident) {
+                        gen.params.push(l.clone().into());
+                    } else if let Some(lt) = lt {
                         gen.params.push(LifetimeParam::new(lt.clone()).into());
                     }
                 }
@@ -171,17 +173,29 @@ impl Derive<'_> {
         }
     }
 
-    #[allow(clippy::unused_self)]
     fn set_lifetime(&self, lt: &Lifetime, wp: WherePredicate) -> Option<WherePredicate> {
         match wp {
-            WherePredicate::Lifetime(_) => None,
+            WherePredicate::Lifetime(mut l) => {
+                if self.attribute.is_reference_lifetime(&l.lifetime.ident) {
+                    l.bounds = l
+                        .bounds
+                        .into_iter()
+                        .map(|l| self.reference_lifetime_or_clone(l, lt))
+                        .collect();
+                    Some(WherePredicate::Lifetime(l))
+                } else {
+                    None
+                }
+            }
             WherePredicate::Type(mut pt) => {
                 pt.lifetimes = None;
                 pt.bounds = pt
                     .bounds
                     .into_iter()
                     .map(|tpb| match tpb {
-                        TypeParamBound::Lifetime(_) => TypeParamBound::Lifetime(lt.clone()),
+                        TypeParamBound::Lifetime(l) => {
+                            TypeParamBound::Lifetime(self.reference_lifetime_or_clone(l, lt))
+                        }
                         t => t,
                     })
                     .collect();
@@ -189,6 +203,14 @@ impl Derive<'_> {
             }
             // When stable, enable: #[cfg_attr(test, deny(non_exhaustive_omitted_patterns))]
             _ => abort_call_site!("Unsupported WherePredicate"),
+        }
+    }
+
+    fn reference_lifetime_or_clone(&self, l: Lifetime, lt: &Lifetime) -> Lifetime {
+        if self.attribute.is_reference_lifetime(&l.ident) {
+            l
+        } else {
+            lt.clone()
         }
     }
 }
