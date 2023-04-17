@@ -65,7 +65,8 @@
 //!
 //! # Generics
 //!
-//! The derive macro supports currently only lifetimes (no bounds but as many as you want).
+//! The derive macro supports these generics: lifetimes, types (no consts). And with bounds and
+//! as many as you want.
 //!
 //! # Possible Errors
 //!
