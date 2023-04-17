@@ -23,9 +23,12 @@ impl Derive<'_> {
 
         let lifetime_our = &Lifetime::new("'a", Span::call_site());
         let lifetime_placeholder = &Lifetime::new("'_", Span::call_site());
-        let generics_definition = self.generate_generics(Some(lifetime_our), true);
-        let generics_our = self.generate_generics(Some(lifetime_our), false);
-        let generics_placeholder = self.generate_generics(Some(lifetime_placeholder), false);
+        let mut generics_definition = self.generate_generics(None);
+        generics_definition
+            .params
+            .insert(0, LifetimeParam::new(lifetime_our.clone()).into());
+        let generics_our = self.generate_generics(Some(lifetime_our));
+        let generics_placeholder = self.generate_generics(Some(lifetime_placeholder));
 
         let name = &self.input.ident;
         let trait_name = Mode::ToBorrowed.name();
@@ -53,9 +56,9 @@ impl Derive<'_> {
     fn generate_mode_in_to_owned(&self, inner: &TokenStream) -> TokenStream {
         let lifetime_placeholder = &Lifetime::new("'_", Span::call_site());
         let lifetime_static = &Lifetime::new("'static", Span::call_site());
-        let generics_definition = self.generate_generics(None, false);
-        let generics_placeholder = self.generate_generics(Some(lifetime_placeholder), false);
-        let generics_static = self.generate_generics(Some(lifetime_static), false);
+        let generics_definition = self.generate_generics(None);
+        let generics_placeholder = self.generate_generics(Some(lifetime_placeholder));
+        let generics_static = self.generate_generics(Some(lifetime_static));
 
         let name = &self.input.ident;
         let trait_name = self.mode.name();
@@ -83,18 +86,14 @@ impl Derive<'_> {
         }
     }
 
-    fn generate_generics(&self, lt: Option<&Lifetime>, dedup: bool) -> Generics {
+    fn generate_generics(&self, lt: Option<&Lifetime>) -> Generics {
         let mut gen = Generics::default();
-        let mut already_printed = false;
 
         for gp in self.input.generics.params.iter() {
             match gp {
                 GenericParam::Lifetime(_) => {
                     if let Some(lt) = lt {
-                        if !dedup || !already_printed {
-                            gen.params.push(LifetimeParam::new(lt.clone()).into());
-                            already_printed = true;
-                        }
+                        gen.params.push(LifetimeParam::new(lt.clone()).into());
                     }
                 }
                 GenericParam::Type(t) => {
