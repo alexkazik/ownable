@@ -21,26 +21,27 @@ impl Derive<'_> {
             );
         }
 
+        let generics_definition = self.generate_generics(Some("'a"), true);
+        let generics_our = self.generate_generics(Some("'a"), false);
+        let generics_placeholder = self.generate_generics(Some("'_"), false);
+
         let name = &self.input.ident;
-        let generics_dedup = self.generate_generics(Some("'a"), true);
-        let generics = self.generate_generics(Some("'a"), false);
-        let use_generics = self.generate_generics(Some("'_"), false);
         let trait_name = Mode::ToBorrowed.name();
         let doc = Mode::ToBorrowed.doc();
 
         quote! {
-            impl #generics_dedup #trait_name <'a> for #name #generics
+            impl #generics_definition #trait_name <'a> for #name #generics_our
             {
                 fn to_borrowed(&'a self) -> Self {
                     #inner
                 }
             }
 
-            impl #generics_dedup #name #generics
+            impl #generics_definition #name #generics_our
             {
                 #[doc=#doc]
                 #[inline(always)]
-                pub fn to_borrowed(&self) -> #name #use_generics {
+                pub fn to_borrowed(&self) -> #name #generics_placeholder {
                     #trait_name::to_borrowed(self)
                 }
             }
@@ -48,29 +49,30 @@ impl Derive<'_> {
     }
 
     fn generate_mode_in_to_owned(&self, inner: &TokenStream) -> TokenStream {
+        let generics_definition = self.generate_generics(None, false);
+        let generics_placeholder = self.generate_generics(Some("'_"), false);
+        let generics_static = self.generate_generics(Some("'static"), false);
+
         let name = &self.input.ident;
-        let def_generics = self.generate_generics(None, false);
-        let use_generics = self.generate_generics(Some("'_"), false);
-        let static_generics = self.generate_generics(Some("'static"), false);
         let trait_name = self.mode.name();
         let trait_function = self.mode.function();
         let as_ref = self.mode.as_ref();
         let doc = self.mode.doc();
 
         quote! {
-            impl #def_generics #trait_name for #name #use_generics
+            impl #generics_definition #trait_name for #name #generics_placeholder
             {
-                type Owned = #name #static_generics;
+                type Owned = #name #generics_static;
                 fn #trait_function(#as_ref self) -> Self::Owned {
                     #inner
                 }
             }
 
-            impl #def_generics #name #use_generics
+            impl #generics_definition #name #generics_placeholder
             {
                 #[doc=#doc]
                 #[inline(always)]
-                pub fn #trait_function(#as_ref self) -> #name #static_generics {
+                pub fn #trait_function(#as_ref self) -> #name #generics_static {
                     #trait_name::#trait_function(self)
                 }
             }
