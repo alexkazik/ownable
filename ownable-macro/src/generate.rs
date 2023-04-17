@@ -121,7 +121,13 @@ impl Derive<'_> {
                     gen.params.push(TypeParam::from(t.ident.clone()).into());
                 }
                 GenericParam::Const(c) => {
-                    abort!(c, "Generic consts aren't supported (it's a todo)");
+                    if lt.is_none() {
+                        // This happens exactly for the definitions of the generics (e.g. `N`)
+                        gen.params.push(c.clone().into());
+                    } else {
+                        // This happens for all uses of the generics (e.g. `const N: usize`)
+                        gen.params.push(TypeParam::from(c.ident.clone()).into());
+                    }
                 }
             }
         }
@@ -134,7 +140,6 @@ impl Derive<'_> {
 
         for gp in self.input.generics.params.iter() {
             match gp {
-                GenericParam::Lifetime(_) => {}
                 GenericParam::Type(t) => {
                     w.push(WherePredicate::Type(PredicateType {
                         lifetimes: None,
@@ -149,9 +154,7 @@ impl Derive<'_> {
                         bounds: t.bounds.iter().cloned().collect(),
                     }));
                 }
-                GenericParam::Const(c) => {
-                    abort!(c, "Generic consts are supported (it's a todo)");
-                }
+                GenericParam::Lifetime(_) | GenericParam::Const(_) => {}
             }
         }
 
