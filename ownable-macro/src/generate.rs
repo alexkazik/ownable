@@ -17,7 +17,7 @@ impl Derive<'_> {
         if self.input.generics.lifetimes().count() == 0 {
             abort!(
                 self.input,
-                "ToBorrowed can be only derived for a struct with a lifetime"
+                "ToBorrowed can be only derived for a struct/enum with a lifetime"
             );
         }
 
@@ -95,10 +95,10 @@ impl Derive<'_> {
                     }
                 }
                 GenericParam::Type(t) => {
-                    abort!(t, "Generic types are supported (it's a todo)");
+                    abort!(t, "Generic types aren't supported (it's a todo)");
                 }
                 GenericParam::Const(c) => {
-                    abort!(c, "Generic consts are supported (it's a todo)");
+                    abort!(c, "Generic consts aren't supported (it's a todo)");
                 }
             }
         }
