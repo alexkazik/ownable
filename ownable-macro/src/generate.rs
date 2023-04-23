@@ -33,6 +33,20 @@ impl Derive<'_> {
         let name = &self.input.ident;
         let trait_name = Mode::ToBorrowed.name();
         let doc = Mode::ToBorrowed.doc();
+        let function = if self.attribute.function {
+            quote! {
+                impl #generics_definition #name #generics_our
+                {
+                    #[doc=#doc]
+                    #[inline(always)]
+                    pub fn to_borrowed(&self) -> #name #generics_placeholder {
+                        #trait_name::to_borrowed(self)
+                    }
+                }
+            }
+        } else {
+            TokenStream::default()
+        };
 
         quote! {
             impl #generics_definition #trait_name <#lifetime_our> for #name #generics_our
@@ -42,14 +56,7 @@ impl Derive<'_> {
                 }
             }
 
-            impl #generics_definition #name #generics_our
-            {
-                #[doc=#doc]
-                #[inline(always)]
-                pub fn to_borrowed(&self) -> #name #generics_placeholder {
-                    #trait_name::to_borrowed(self)
-                }
-            }
+            #function
         }
     }
 
@@ -65,6 +72,20 @@ impl Derive<'_> {
         let trait_function = self.mode.function();
         let as_ref = self.mode.as_ref();
         let doc = self.mode.doc();
+        let function = if self.attribute.function {
+            quote! {
+                impl #generics_definition #name #generics_placeholder
+                {
+                    #[doc=#doc]
+                    #[inline(always)]
+                    pub fn #trait_function(#as_ref self) -> #name #generics_static {
+                        #trait_name::#trait_function(self)
+                    }
+                }
+            }
+        } else {
+            TokenStream::default()
+        };
 
         quote! {
             impl #generics_definition #trait_name for #name #generics_placeholder
@@ -75,14 +96,7 @@ impl Derive<'_> {
                 }
             }
 
-            impl #generics_definition #name #generics_placeholder
-            {
-                #[doc=#doc]
-                #[inline(always)]
-                pub fn #trait_function(#as_ref self) -> #name #generics_static {
-                    #trait_name::#trait_function(self)
-                }
-            }
+            #function
         }
     }
 

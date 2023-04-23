@@ -6,6 +6,7 @@ const ATTRIBUTE_NAME: &str = "ownable";
 #[derive(Default)]
 pub(crate) struct DeriveAttribute {
     pub(crate) clone: Option<bool>,
+    pub(crate) function: bool,
 }
 
 impl DeriveAttribute {
@@ -14,6 +15,7 @@ impl DeriveAttribute {
         let mut features = Features::parse(ATTRIBUTE_NAME, attrs);
         let result = DeriveAttribute {
             clone: features.get("clone").map(|p| p.get_bool()),
+            function: features.get("function").map_or(true, |p| p.get_bool()),
         };
         features.finish(result)
     }
