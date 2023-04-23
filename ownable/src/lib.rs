@@ -89,6 +89,11 @@
 //!
 //! For an example see the at the top.
 //!
+//! ## function
+//!
+//! With `#[ownable(function = false)]` at top level (enum/struct) the functions mentioned above
+//! are not implemented, only the [traits](crate::traits).
+//!
 //! # AsCopy/AsClone
 //!
 //! If the impls for the copy types are not enough or `#[ownable(clone)]` does not work in that
