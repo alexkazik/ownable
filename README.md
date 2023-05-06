@@ -60,6 +60,10 @@ But actually each function only calls a function of traits, which are derived.
 
 If the derive does not work it can be implemented by hand and still derived for types which use it.
 
+## Generics
+
+The derive macro supports currently only lifetimes (no bounds but as many as you want).
+
 ## Possible Errors
 
  If the following error occurs then one of the fields has a missing trait.
@@ -71,6 +75,16 @@ This can sometimes be fixed with `#[ownable(clone)]` as seen in the example abov
 otherwise `AsCopy`/`AsClone` can help.
 
 And as the last resort the impl for the surrounding structure can be hand written.
+
+## Attributes
+
+### clone
+
+With `#[ownable(clone)]` and `#[ownable(clone = false|true)]` it's possible to denote that this
+enum|struct/variant/field should always be cloned. It can be overwritten (i.e. set to true at
+top level and then false at the fields to not be cloned).
+
+For an example see the at the top.
 
 ## AsCopy/AsClone
 
