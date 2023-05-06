@@ -6,14 +6,12 @@ version = 3
 name = "ownable"
 version = "0.5.0"
 dependencies = [
- "ownable-macro 0.5.0",
+ "ownable-macro 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "ownable-macro"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72cec274c3897a6f650f2cd55d2b02cabcc751b70f2c56d66ce36c3f2d53e063"
+version = "0.6.0"
 dependencies = [
  "proc-macro-error",
  "proc-macro2",
@@ -24,6 +22,8 @@ dependencies = [
 [[package]]
 name = "ownable-macro"
 version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b2c91d2781624dec1234581a1a01e63638f36546ad72ee82873ac1b84f41117b"
 dependencies = [
  "proc-macro-error",
  "proc-macro2",
