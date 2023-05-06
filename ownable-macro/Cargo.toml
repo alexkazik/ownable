@@ -1,6 +1,6 @@
 [package]
 name = "ownable-macro"
-version = "0.5.0"
+version = "0.6.0"
 authors = ["ALeX Kazik <alex@kazik.de>"]
 edition = "2021"
 description = "Procedural macros for the ownable crate"
@@ -13,7 +13,7 @@ categories = []
 proc-macro2 = "1.0.52"
 proc-macro-error = { version = "1.0.4", default-features = false }
 quote = "1.0.26"
-syn = { version = "2", default-features = false, features = ["derive", "parsing", "printing", "proc-macro"] }
+syn = { version = "2", default-features = false, features = ["derive", "parsing", "printing", "proc-macro", "clone-impls"] }
 
 [lib]
 proc-macro = true

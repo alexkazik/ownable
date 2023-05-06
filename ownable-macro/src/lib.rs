@@ -49,7 +49,7 @@ pub(crate) struct Derive<'a> {
 }
 
 fn derive(input: &DeriveInput, mode: Mode) -> proc_macro2::TokenStream {
-    let attribute = &DeriveAttribute::new(&input.attrs);
+    let attribute = &DeriveAttribute::new(input);
     let derive = Derive {
         input,
         attribute,
