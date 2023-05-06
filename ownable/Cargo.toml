@@ -1,6 +1,6 @@
 [package]
 name = "ownable"
-version = "0.5.0"
+version = "0.6.0"
 authors = ["ALeX Kazik <alex@kazik.de>"]
 edition = "2021"
 description = "Derive macro for structs/enums with Cow, which can convert Type<'a> to Type<'static> and more"
@@ -10,7 +10,7 @@ keywords = ["into_owned", "derive", "owned", "no_std"]
 categories = ["rust-patterns", "no-std"]
 
 [dependencies]
-ownable-macro = "0.5"
+ownable-macro = "0.6"
 
 [features]
 default = ['std']

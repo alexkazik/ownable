@@ -2,15 +2,6 @@ use crate::traits::{IntoOwned, ToBorrowed, ToOwned};
 use core::num::{NonZeroI128, NonZeroI16, NonZeroI32, NonZeroI64, NonZeroI8, NonZeroIsize};
 use core::num::{NonZeroU128, NonZeroU16, NonZeroU32, NonZeroU64, NonZeroU8, NonZeroUsize};
 
-// &
-
-impl<'a, T> ToBorrowed<'a> for &'a T {
-    #[inline(always)]
-    fn to_borrowed(&'a self) -> Self {
-        self
-    }
-}
-
 // ()
 
 impl ToBorrowed<'_> for () {
