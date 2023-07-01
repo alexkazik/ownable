@@ -3,3 +3,4 @@ members = [
   "ownable",
   "ownable-macro",
 ]
+resolver = "2"
