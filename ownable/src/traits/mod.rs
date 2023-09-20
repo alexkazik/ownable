@@ -209,3 +209,55 @@ where
             .collect()
     }
 }
+
+// Tuples
+
+macro_rules! tuple_impls {
+    ($($(#[$attrs:meta])?($($n:tt $name:ident)+),)+) => {
+        $(
+            impl<'a, $($name: ToBorrowed<'a>),+> ToBorrowed<'a> for ($($name,)+) {
+                $(#[$attrs])?
+                fn to_borrowed(&'a self) -> Self {
+                    ($(self.$n.to_borrowed(),)+)
+                }
+            }
+
+            impl<$($name: ToOwned),+> ToOwned for ($($name,)+) {
+                type Owned = ($($name::Owned,)+);
+
+                $(#[$attrs])?
+                fn to_owned(&self) -> Self::Owned where {
+                    ($(self.$n.to_owned(),)+)
+                }
+            }
+
+            impl<$($name: IntoOwned),+> IntoOwned for ($($name,)+) {
+                type Owned = ($($name::Owned,)+);
+
+                $(#[$attrs])?
+                fn into_owned(self) -> Self::Owned {
+                    ($(IntoOwned::into_owned(self.$n),)+)
+                }
+            }
+        )+
+    };
+}
+
+tuple_impls! {
+    #[inline(always)] (0 T0),
+    #[inline] (0 T0 1 T1),
+    #[inline] (0 T0 1 T1 2 T2),
+    (0 T0 1 T1 2 T2 3 T3),
+    (0 T0 1 T1 2 T2 3 T3 4 T4),
+    (0 T0 1 T1 2 T2 3 T3 4 T4 5 T5),
+    (0 T0 1 T1 2 T2 3 T3 4 T4 5 T5 6 T6),
+    (0 T0 1 T1 2 T2 3 T3 4 T4 5 T5 6 T6 7 T7),
+    (0 T0 1 T1 2 T2 3 T3 4 T4 5 T5 6 T6 7 T7 8 T8),
+    (0 T0 1 T1 2 T2 3 T3 4 T4 5 T5 6 T6 7 T7 8 T8 9 T9),
+    (0 T0 1 T1 2 T2 3 T3 4 T4 5 T5 6 T6 7 T7 8 T8 9 T9 10 T10),
+    (0 T0 1 T1 2 T2 3 T3 4 T4 5 T5 6 T6 7 T7 8 T8 9 T9 10 T10 11 T11),
+    (0 T0 1 T1 2 T2 3 T3 4 T4 5 T5 6 T6 7 T7 8 T8 9 T9 10 T10 11 T11 12 T12),
+    (0 T0 1 T1 2 T2 3 T3 4 T4 5 T5 6 T6 7 T7 8 T8 9 T9 10 T10 11 T11 12 T12 13 T13),
+    (0 T0 1 T1 2 T2 3 T3 4 T4 5 T5 6 T6 7 T7 8 T8 9 T9 10 T10 11 T11 12 T12 13 T13 14 T14),
+    (0 T0 1 T1 2 T2 3 T3 4 T4 5 T5 6 T6 7 T7 8 T8 9 T9 10 T10 11 T11 12 T12 13 T13 14 T14 15 T15),
+}

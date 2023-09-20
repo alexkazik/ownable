@@ -11,6 +11,7 @@ struct Test<'a> {
     copy: usize,
     as_copy: AsCopy<Ipv4Addr>,
     as_clone: AsClone<String>,
+    tuple: (Cow<'a, str>, u64),
 }
 
 #[test]
@@ -23,6 +24,7 @@ fn test() {
         copy: 0,
         as_copy: AsCopy(Ipv4Addr::LOCALHOST),
         as_clone: AsClone("as_clone".to_string()),
+        tuple: (Cow::Borrowed(&value), 64),
     };
     let v1: Test<'_> = v0.to_borrowed();
     assert_eq!(v0, v1);
