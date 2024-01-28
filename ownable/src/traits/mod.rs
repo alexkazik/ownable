@@ -210,6 +210,42 @@ where
     }
 }
 
+// Arrays
+
+impl<'a, T, const N: usize> ToBorrowed<'a> for [T; N]
+where
+    T: ToBorrowed<'a>,
+{
+    #[inline]
+    fn to_borrowed(&'a self) -> Self {
+        core::array::from_fn(|i| self[i].to_borrowed())
+    }
+}
+
+impl<T, const N: usize> ToOwned for [T; N]
+where
+    T: ToOwned,
+{
+    type Owned = [T::Owned; N];
+
+    #[inline]
+    fn to_owned(&self) -> Self::Owned {
+        core::array::from_fn(|i| self[i].to_owned())
+    }
+}
+
+impl<T, const N: usize> IntoOwned for [T; N]
+where
+    T: IntoOwned,
+{
+    type Owned = [T::Owned; N];
+
+    #[inline]
+    fn into_owned(self) -> Self::Owned {
+        self.map(IntoOwned::into_owned)
+    }
+}
+
 // Tuples
 
 macro_rules! tuple_impls {
