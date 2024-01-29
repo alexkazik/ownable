@@ -110,7 +110,7 @@ impl Derive<'_> {
     fn generate_generics(&self, lt: Option<&Lifetime>) -> Generics {
         let mut gen = Generics::default();
 
-        for gp in self.input.generics.params.iter() {
+        for gp in &self.input.generics.params {
             match gp {
                 GenericParam::Lifetime(l) => {
                     if self.attribute.is_reference_lifetime(&l.lifetime.ident) {
@@ -140,7 +140,7 @@ impl Derive<'_> {
     fn generate_where(&self, lt: &Lifetime) -> WhereClause {
         let mut w = Vec::new();
 
-        for gp in self.input.generics.params.iter() {
+        for gp in &self.input.generics.params {
             match gp {
                 GenericParam::Type(t) => {
                     w.push(WherePredicate::Type(PredicateType {
