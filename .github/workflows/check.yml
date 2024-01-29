@@ -79,7 +79,7 @@ jobs:
     # https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability
     strategy:
       matrix:
-        msrv: ["1.58.1"] # 2021 edition requires 1.56; implicit named arguments requires 1.58
+        msrv: ["1.63.0"] # 2021 edition requires 1.56; implicit named arguments requires 1.58; core::array::from_fn requires 1.63
     name: ubuntu / ${{ matrix.msrv }}
     steps:
       - uses: actions/checkout@v4

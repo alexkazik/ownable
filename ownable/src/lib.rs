@@ -4,6 +4,8 @@
 #![warn(missing_docs)]
 #![warn(clippy::pedantic)]
 #![allow(clippy::inline_always)]
+#![allow(rustdoc::redundant_explicit_links)]
+#![allow(clippy::unconditional_recursion)]
 
 //! # Derive macro for structs/enums with Cow
 //!
