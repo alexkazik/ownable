@@ -1,6 +1,6 @@
 [package]
 name = "ownable"
-version = "0.6.1"
+version = "0.6.2"
 authors = ["ALeX Kazik <alex@kazik.de>"]
 edition = "2021"
 description = "Derive macro for structs/enums with Cow, which can convert Type<'a> to Type<'static> and more"
