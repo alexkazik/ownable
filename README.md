@@ -172,13 +172,13 @@ pub struct Type<'a> {
 With defaults (includes `std`):
 ```toml
 [dependencies]
-ownable = "0.5"
+ownable = "0.6"
 ```
 
 With `no_std` (but still requires alloc):
 ```toml
 [dependencies]
-ownable = { version = "0.5", default-features = false }
+ownable = { version = "0.6", default-features = false }
 ```
 
 <!-- cargo-rdme end -->
