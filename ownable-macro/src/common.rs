@@ -1,5 +1,5 @@
 use crate::attribute::{FieldAttribute, OrAssign};
-use crate::Derive;
+use crate::derive::Derive;
 use proc_macro2::{Ident, Span, TokenStream};
 use proc_macro_error::abort;
 use quote::{quote, ToTokens};
@@ -28,7 +28,7 @@ impl Derive<'_> {
             fields.push(quote! {#name: #call});
         }
 
-        let name = &self.input.ident;
+        let name = self.ident;
         if let Some(variant) = variant {
             let variant_name = &variant.ident;
             quote! {#name :: #variant_name { #(#fields),* }}
@@ -65,7 +65,7 @@ impl Derive<'_> {
             }
         }
 
-        let name = &self.input.ident;
+        let name = self.ident;
         if let Some(variant) = variant {
             let variant_name = &variant.ident;
             quote! {#name :: #variant_name ( #(#fields),* )}

@@ -1,5 +1,5 @@
+use crate::derive::Derive;
 use crate::mode::Mode;
-use crate::Derive;
 use proc_macro2::{Span, TokenStream};
 use proc_macro_error::{abort, abort_call_site};
 use quote::quote;
@@ -19,7 +19,7 @@ impl Derive<'_> {
     }
 
     fn generate_mode_to_borrowed(&self, inner: &TokenStream) -> TokenStream {
-        if self.input.generics.lifetimes().count() == 0 {
+        if self.generics.lifetimes().count() == 0 {
             abort!(
                 self.input,
                 "ToBorrowed can be only derived for a struct/enum with a lifetime"
@@ -36,7 +36,7 @@ impl Derive<'_> {
         let generics_placeholder = self.generate_generics(Some(lifetime_placeholder));
         let generics_where = self.generate_where(lifetime_our);
 
-        let name = &self.input.ident;
+        let name = self.ident;
         let trait_name = Mode::ToBorrowed.name();
         let doc = Mode::ToBorrowed.doc();
         let function = if self.attribute.function {
@@ -74,7 +74,7 @@ impl Derive<'_> {
         let generics_static = self.generate_generics(Some(lifetime_static));
         let generics_where = self.generate_where(lifetime_static);
 
-        let name = &self.input.ident;
+        let name = self.ident;
         let trait_name = self.mode.name();
         let trait_function = self.mode.function();
         let as_ref = self.mode.as_ref();
@@ -110,7 +110,7 @@ impl Derive<'_> {
     fn generate_generics(&self, lt: Option<&Lifetime>) -> Generics {
         let mut gen = Generics::default();
 
-        for gp in &self.input.generics.params {
+        for gp in &self.generics.params {
             match gp {
                 GenericParam::Lifetime(l) => {
                     if self.attribute.is_reference_lifetime(&l.lifetime.ident) {
@@ -140,7 +140,7 @@ impl Derive<'_> {
     fn generate_where(&self, lt: &Lifetime) -> WhereClause {
         let mut w = Vec::new();
 
-        for gp in &self.input.generics.params {
+        for gp in &self.generics.params {
             match gp {
                 GenericParam::Type(t) => {
                     w.push(WherePredicate::Type(PredicateType {
@@ -160,7 +160,7 @@ impl Derive<'_> {
             }
         }
 
-        if let Some(wc) = &self.input.generics.where_clause {
+        if let Some(wc) = &self.generics.where_clause {
             w.extend(wc.predicates.iter().cloned());
         }
 

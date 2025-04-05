@@ -5,6 +5,10 @@ use syn::{Attribute, DeriveInput, GenericParam, Generics, Lifetime};
 
 const ATTRIBUTE_NAME: &str = "ownable";
 
+//
+// DeriveAttribute
+//
+
 #[derive(Default)]
 pub(crate) struct DeriveAttribute {
     reference_lifetime: Vec<String>,
@@ -67,6 +71,10 @@ impl DeriveAttribute {
         })
     }
 }
+
+//
+// FieldAttribute
+//
 
 #[derive(Default)]
 pub(crate) struct FieldAttribute {

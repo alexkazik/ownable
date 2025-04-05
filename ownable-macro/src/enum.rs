@@ -1,4 +1,4 @@
-use crate::Derive;
+use crate::derive::Derive;
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
 use syn::{DataEnum, Fields, FieldsNamed, FieldsUnnamed, Variant};
@@ -21,7 +21,7 @@ impl Derive<'_> {
     }
 
     fn match_named(&self, variant: &Variant, data: &FieldsNamed) -> TokenStream {
-        let name = &self.input.ident;
+        let name = self.ident;
         let variant_name = &variant.ident;
         let mut pattern = Vec::new();
         for field in &data.named {
@@ -32,7 +32,7 @@ impl Derive<'_> {
     }
 
     fn match_unnamed(&self, variant: &Variant, data: &FieldsUnnamed) -> TokenStream {
-        let name = &self.input.ident;
+        let name = self.ident;
         let variant_name = &variant.ident;
         let mut pattern = Vec::new();
         for i in 0..data.unnamed.len() {
@@ -43,7 +43,7 @@ impl Derive<'_> {
     }
 
     fn match_unit(&self, variant: &Variant) -> TokenStream {
-        let name = &self.input.ident;
+        let name = self.ident;
         let variant_name = &variant.ident;
         quote! {#name :: #variant_name => #name :: #variant_name}
     }

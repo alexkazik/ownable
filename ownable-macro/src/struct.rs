@@ -1,4 +1,4 @@
-use crate::Derive;
+use crate::derive::Derive;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{DataStruct, Fields};
@@ -13,7 +13,7 @@ impl Derive<'_> {
     }
 
     fn derive_struct_unit(&self) -> TokenStream {
-        let name = &self.input.ident;
+        let name = self.ident;
         quote! {#name}
     }
 }
