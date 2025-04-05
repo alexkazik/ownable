@@ -10,8 +10,8 @@ keywords = []
 categories = []
 
 [dependencies]
+darling = "0.21.3"
 proc-macro2 = "1.0.60"
-proc-macro-error = { version = "1.0.4", default-features = false }
 quote = "1.0.26"
 syn = { version = "2", default-features = false, features = ["derive", "parsing", "printing", "proc-macro", "clone-impls"] }
 

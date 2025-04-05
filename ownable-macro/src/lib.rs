@@ -5,7 +5,6 @@
 //! This crate is not to be used on it's own, please see <https://docs.rs/ownable>.
 
 mod attribute;
-mod attribute_parser;
 mod common;
 mod derive;
 mod r#enum;
@@ -16,13 +15,11 @@ mod r#struct;
 use crate::derive::derive;
 use crate::mode::Mode;
 use proc_macro::TokenStream;
-use proc_macro_error::proc_macro_error;
 use syn::{parse_macro_input, DeriveInput};
 
 // This mod uses proc_macro::TokenStream while all others use proc_macro2::TokenStream!
 
 /// Derive `to_borrowed`.
-#[proc_macro_error]
 #[proc_macro_derive(ToBorrowed, attributes(ownable))]
 pub fn to_borrowed(tokens: TokenStream) -> TokenStream {
     let input = parse_macro_input!(tokens as DeriveInput);
@@ -30,7 +27,6 @@ pub fn to_borrowed(tokens: TokenStream) -> TokenStream {
 }
 
 /// Derive `to_owned`.
-#[proc_macro_error]
 #[proc_macro_derive(ToOwned, attributes(ownable))]
 pub fn to_owned(tokens: TokenStream) -> TokenStream {
     let input = parse_macro_input!(tokens as DeriveInput);
@@ -38,7 +34,6 @@ pub fn to_owned(tokens: TokenStream) -> TokenStream {
 }
 
 /// Derive `into_owned`.
-#[proc_macro_error]
 #[proc_macro_derive(IntoOwned, attributes(ownable))]
 pub fn into_owned(tokens: TokenStream) -> TokenStream {
     let input = parse_macro_input!(tokens as DeriveInput);

@@ -1,21 +1,22 @@
 use crate::attribute::{FieldAttribute, OrAssign};
 use crate::derive::Derive;
+use darling::FromAttributes;
 use proc_macro2::{Ident, Span, TokenStream};
-use proc_macro_error::abort;
 use quote::{quote, ToTokens};
 use syn::{FieldsNamed, FieldsUnnamed, LitInt, Type, TypeReference, Variant};
 
 impl Derive<'_> {
     pub(crate) fn derive_named(
-        &self,
-        variant: Option<&Variant>,
+        &mut self,
+        variant: Option<Variant>,
         data: &FieldsNamed,
     ) -> TokenStream {
         let mut fields = Vec::new();
         for d in &data.named {
-            let mut field_attribute = FieldAttribute::new(&d.attrs);
-            if let Some(variant) = variant {
-                field_attribute.or_assign(&FieldAttribute::new(&variant.attrs));
+            let mut field_attribute = self.handle(FieldAttribute::from_attributes(&d.attrs));
+            if let Some(ref variant) = variant {
+                field_attribute
+                    .or_assign(&self.handle(FieldAttribute::from_attributes(&variant.attrs)));
             }
             field_attribute.or_assign(self.attribute);
             let name = d.ident.as_ref().unwrap();
@@ -38,15 +39,16 @@ impl Derive<'_> {
     }
 
     pub(crate) fn derive_unnamed(
-        &self,
+        &mut self,
         variant: Option<&Variant>,
         data: &FieldsUnnamed,
     ) -> TokenStream {
         let mut fields = Vec::new();
         for (i, d) in data.unnamed.iter().enumerate() {
-            let mut field_attribute = FieldAttribute::new(&d.attrs);
+            let mut field_attribute = self.handle(FieldAttribute::from_attributes(&d.attrs));
             if let Some(variant) = variant {
-                field_attribute.or_assign(&FieldAttribute::new(&variant.attrs));
+                field_attribute
+                    .or_assign(&self.handle(FieldAttribute::from_attributes(&variant.attrs)));
                 field_attribute.or_assign(self.attribute);
                 fields.push(self.create_call(
                     &field_attribute,
@@ -75,7 +77,7 @@ impl Derive<'_> {
     }
 
     fn create_call(
-        &self,
+        &mut self,
         field_attribute: &FieldAttribute,
         index: &TokenStream,
         with_self: bool,
@@ -92,10 +94,8 @@ impl Derive<'_> {
                     quote! { #index }
                 }
             } else {
-                abort!(
-                    ty,
-                    "References are not supported out of the box, see: https://docs.rs/ownable/*/ownable/#references"
-                )
+                self.error(ty,"References are not supported out of the box, see: https://docs.rs/ownable/*/ownable/#references");
+                quote! { todo!() }
             }
         } else if field_attribute.clone.unwrap_or(false) {
             if with_self {
