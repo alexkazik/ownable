@@ -17,7 +17,7 @@ use crate::mode::Mode;
 use proc_macro_error::{abort, proc_macro_error};
 use syn::{parse_macro_input, Data, DeriveInput};
 
-/// Derive to_borrowed.
+/// Derive `to_borrowed`.
 #[proc_macro_error]
 #[proc_macro_derive(ToBorrowed, attributes(ownable))]
 pub fn to_borrowed(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
@@ -25,7 +25,7 @@ pub fn to_borrowed(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
     derive(&input, Mode::ToBorrowed).into()
 }
 
-/// Derive to_owned.
+/// Derive `to_owned`.
 #[proc_macro_error]
 #[proc_macro_derive(ToOwned, attributes(ownable))]
 pub fn to_owned(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
@@ -33,7 +33,7 @@ pub fn to_owned(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
     derive(&input, Mode::ToOwned).into()
 }
 
-/// Derive into_owned.
+/// Derive `into_owned`.
 #[proc_macro_error]
 #[proc_macro_derive(IntoOwned, attributes(ownable))]
 pub fn into_owned(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {

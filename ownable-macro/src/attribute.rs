@@ -36,7 +36,7 @@ impl DeriveAttribute {
                     .collect()
             }),
             clone: features.get("clone").map(|p| p.get_bool()),
-            function: features.get("function").map_or(true, |p| p.get_bool()),
+            function: features.get("function").is_none_or(|p| p.get_bool()),
         };
         features.finish(result)
     }
