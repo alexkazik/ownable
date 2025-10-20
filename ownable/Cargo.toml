@@ -8,6 +8,7 @@ repository = "https://github.com/alexkazik/ownable"
 license = "MIT OR Apache-2.0"
 keywords = ["into_owned", "derive", "owned", "no_std"]
 categories = ["rust-patterns", "no-std"]
+rust-version = "1.63.0"
 
 [dependencies]
 ownable-macro = { version = "0.6", path = "../ownable-macro" }
