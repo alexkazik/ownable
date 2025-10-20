@@ -1,7 +1,6 @@
+use crate::derive::Derive;
 use crate::mode::Mode;
-use crate::Derive;
 use proc_macro2::{Span, TokenStream};
-use proc_macro_error::{abort, abort_call_site};
 use quote::quote;
 use std::iter::once;
 use syn::token::{Colon, Where};
@@ -11,22 +10,22 @@ use syn::{
 };
 
 impl Derive<'_> {
-    pub(crate) fn generate(&self, inner: &TokenStream) -> TokenStream {
+    pub(crate) fn generate(&mut self, inner: &TokenStream) -> TokenStream {
         match self.mode {
             Mode::ToBorrowed => self.generate_mode_to_borrowed(inner),
             Mode::ToOwned | Mode::IntoOwned => self.generate_mode_in_to_owned(inner),
         }
     }
 
-    fn generate_mode_to_borrowed(&self, inner: &TokenStream) -> TokenStream {
-        if self.input.generics.lifetimes().count() == 0 {
-            abort!(
-                self.input,
-                "ToBorrowed can be only derived for a struct/enum with a lifetime"
+    fn generate_mode_to_borrowed(&mut self, inner: &TokenStream) -> TokenStream {
+        if self.generics.lifetimes().count() == 0 {
+            self.error(
+                self.ident,
+                "ToBorrowed can be only derived for a struct/enum with a lifetime",
             );
         }
 
-        let lifetime_our = &self.attribute.new_lifetime();
+        let lifetime_our = &self.attribute.new_lifetime(self);
         let lifetime_placeholder = &Lifetime::new("'_", Span::call_site());
         let mut generics_definition = self.generate_generics(None);
         generics_definition
@@ -36,10 +35,10 @@ impl Derive<'_> {
         let generics_placeholder = self.generate_generics(Some(lifetime_placeholder));
         let generics_where = self.generate_where(lifetime_our);
 
-        let name = &self.input.ident;
+        let name = self.ident;
         let trait_name = Mode::ToBorrowed.name();
         let doc = Mode::ToBorrowed.doc();
-        let function = if self.attribute.function {
+        let function = if self.attribute.function.unwrap_or(true) {
             quote! {
                 impl #generics_definition #name #generics_our #generics_where
                 {
@@ -66,7 +65,7 @@ impl Derive<'_> {
         }
     }
 
-    fn generate_mode_in_to_owned(&self, inner: &TokenStream) -> TokenStream {
+    fn generate_mode_in_to_owned(&mut self, inner: &TokenStream) -> TokenStream {
         let lifetime_placeholder = &Lifetime::new("'_", Span::call_site());
         let lifetime_static = &Lifetime::new("'static", Span::call_site());
         let generics_definition = self.generate_generics(None);
@@ -74,12 +73,12 @@ impl Derive<'_> {
         let generics_static = self.generate_generics(Some(lifetime_static));
         let generics_where = self.generate_where(lifetime_static);
 
-        let name = &self.input.ident;
+        let name = self.ident;
         let trait_name = self.mode.name();
         let trait_function = self.mode.function();
         let as_ref = self.mode.as_ref();
         let doc = self.mode.doc();
-        let function = if self.attribute.function {
+        let function = if self.attribute.function.unwrap_or(true) {
             quote! {
                 impl #generics_definition #name #generics_placeholder #generics_where
                 {
@@ -110,7 +109,7 @@ impl Derive<'_> {
     fn generate_generics(&self, lt: Option<&Lifetime>) -> Generics {
         let mut gen = Generics::default();
 
-        for gp in &self.input.generics.params {
+        for gp in &self.generics.params {
             match gp {
                 GenericParam::Lifetime(l) => {
                     if self.attribute.is_reference_lifetime(&l.lifetime.ident) {
@@ -137,10 +136,10 @@ impl Derive<'_> {
         gen
     }
 
-    fn generate_where(&self, lt: &Lifetime) -> WhereClause {
+    fn generate_where(&mut self, lt: &Lifetime) -> WhereClause {
         let mut w = Vec::new();
 
-        for gp in &self.input.generics.params {
+        for gp in &self.generics.params {
             match gp {
                 GenericParam::Type(t) => {
                     w.push(WherePredicate::Type(PredicateType {
@@ -160,7 +159,7 @@ impl Derive<'_> {
             }
         }
 
-        if let Some(wc) = &self.input.generics.where_clause {
+        if let Some(wc) = &self.generics.where_clause {
             w.extend(wc.predicates.iter().cloned());
         }
 
@@ -173,7 +172,7 @@ impl Derive<'_> {
         }
     }
 
-    fn set_lifetime(&self, lt: &Lifetime, wp: WherePredicate) -> Option<WherePredicate> {
+    fn set_lifetime(&mut self, lt: &Lifetime, wp: WherePredicate) -> Option<WherePredicate> {
         match wp {
             WherePredicate::Lifetime(mut l) => {
                 if self.attribute.is_reference_lifetime(&l.lifetime.ident) {
@@ -202,7 +201,7 @@ impl Derive<'_> {
                 Some(WherePredicate::Type(pt))
             }
             // When stable, enable: #[cfg_attr(test, deny(non_exhaustive_omitted_patterns))]
-            _ => abort_call_site!("Unsupported WherePredicate"),
+            _ => self.error_with(&wp, "Unsupported WherePredicate", None),
         }
     }
 

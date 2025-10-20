@@ -1,63 +1,47 @@
-use crate::attribute_parser::Features;
+// to silence an clippy from within FromDeriveInput
+#![allow(clippy::needless_continue)]
+
+use crate::derive::Derive;
+use darling::util::SpannedValue;
+use darling::{Error, FromAttributes, FromDeriveInput, FromMeta};
 use proc_macro2::{Ident, Span};
-use proc_macro_error::{abort, abort_call_site};
-use syn::{Attribute, DeriveInput, GenericParam, Generics, Lifetime};
+use syn::{GenericParam, Generics, Lifetime};
 
-const ATTRIBUTE_NAME: &str = "ownable";
+//
+// DeriveAttribute
+//
 
-#[derive(Default)]
+#[derive(Default, Debug, FromDeriveInput)]
+#[darling(default, attributes(ownable), supports(struct_any, enum_any))]
 pub(crate) struct DeriveAttribute {
-    reference_lifetime: Vec<String>,
+    #[darling(default, rename = "reference")]
+    reference_lifetime: SpannedValue<LifetimesAttribute>,
     pub(crate) clone: Option<bool>,
-    pub(crate) function: bool,
+    pub(crate) function: Option<bool>,
 }
 
 impl DeriveAttribute {
-    #[must_use]
-    pub(crate) fn new(input: &DeriveInput) -> Self {
-        let mut features = Features::parse(ATTRIBUTE_NAME, &input.attrs);
-        let result = DeriveAttribute {
-            reference_lifetime: features.get("reference").map_or_else(Vec::new, |p| {
-                p.req_str()
-                    .split(',')
-                    .map(|l| {
-                        let l = l.trim();
-                        match l.strip_prefix('\'') {
-                            None => abort!(p.span(), "not a lifetime or not used: \"{}\"", l),
-                            Some(lt) => {
-                                if Self::contains_lifetime(&input.generics, lt) {
-                                    lt.to_string()
-                                } else {
-                                    abort!(p.span(), "not a lifetime or not used: \"{}\"", l)
-                                }
-                            }
-                        }
-                    })
-                    .collect()
-            }),
-            clone: features.get("clone").map(|p| p.get_bool()),
-            function: features.get("function").map_or(true, |p| p.get_bool()),
-        };
-        features.finish(result)
-    }
-
     pub(crate) fn is_reference_lifetime(&self, ident: &Ident) -> bool {
-        self.reference_lifetime.iter().any(|kl| ident == kl)
+        self.reference_lifetime.0.iter().any(|kl| ident == kl)
     }
 
-    pub(crate) fn new_lifetime(&self) -> Lifetime {
+    pub(crate) fn new_lifetime(&self, derive: &mut Derive) -> Lifetime {
         const TRY_LIFETIME: &str = "ownable";
 
         for l in TRY_LIFETIME
             .char_indices()
             .map(move |(pos, _)| &TRY_LIFETIME[..=pos])
         {
-            if !self.reference_lifetime.iter().any(|kl| l == kl) {
+            if !self.reference_lifetime.0.iter().any(|kl| l == kl) {
                 return Lifetime::new(&format!("'{l}"), Span::call_site());
             }
         }
 
-        abort_call_site!("all of the following lifetimes are already used: 'o, 'ow, .. 'ownable");
+        derive.error_with(
+            &Span::call_site(),
+            "all of the following lifetimes are already used: 'o, 'ow, .. 'ownable",
+            Lifetime::new("'error", Span::call_site()),
+        )
     }
 
     fn contains_lifetime(generics: &Generics, lifetime: &str) -> bool {
@@ -68,20 +52,14 @@ impl DeriveAttribute {
     }
 }
 
-#[derive(Default)]
+//
+// FieldAttribute
+//
+
+#[derive(Default, FromAttributes)]
+#[darling(attributes(ownable))]
 pub(crate) struct FieldAttribute {
     pub(crate) clone: Option<bool>,
-}
-
-impl FieldAttribute {
-    #[must_use]
-    pub(crate) fn new(attrs: &[Attribute]) -> Self {
-        let mut features = Features::parse(ATTRIBUTE_NAME, attrs);
-        let result = FieldAttribute {
-            clone: features.get("clone").map(|p| p.get_bool()),
-        };
-        features.finish(result)
-    }
 }
 
 pub(crate) trait OrAssign<Rhs> {
@@ -97,5 +75,39 @@ impl OrAssign<&FieldAttribute> for FieldAttribute {
 impl OrAssign<&DeriveAttribute> for FieldAttribute {
     fn or_assign(&mut self, rhs: &DeriveAttribute) {
         self.clone = self.clone.or(rhs.clone);
+    }
+}
+
+//
+// LifetimesAttribute
+//
+
+#[derive(Default, Debug)]
+pub(crate) struct LifetimesAttribute(pub(crate) Vec<String>);
+
+impl FromMeta for LifetimesAttribute {
+    fn from_string(value: &str) -> Result<Self, Error> {
+        Ok(Self(
+            value
+                .split(',')
+                .map(|l| match l.trim().strip_prefix('\'') {
+                    None => Err(Error::custom("not a lifetime")),
+                    Some(lt) => Ok(lt.to_string()),
+                })
+                .collect::<Result<Vec<_>, _>>()?,
+        ))
+    }
+}
+
+impl Derive<'_> {
+    pub(crate) fn verify_lifetimes(&mut self) {
+        for lt in &self.attribute.reference_lifetime.0 {
+            if !DeriveAttribute::contains_lifetime(self.generics, lt) {
+                self.error(
+                    &self.attribute.reference_lifetime.span(),
+                    format!("lifetime \"'{lt}\" is not used"),
+                );
+            }
+        }
     }
 }
