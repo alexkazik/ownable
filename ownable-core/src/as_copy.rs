@@ -9,7 +9,7 @@ use core::ops::{Deref, DerefMut};
 /// Transparent wrapper for [`Copy`]able types to support all [traits](crate::traits) (by copying).
 ///
 /// ```rust
-/// # use ownable::{AsCopy, IntoOwned, ToBorrowed, ToOwned};
+/// # use ownable_core::{AsCopy, IntoOwned, ToBorrowed, ToOwned};
 /// # use std::borrow::Cow;
 /// # use std::collections::HashMap;
 /// # use std::net::Ipv4Addr;

@@ -10,7 +10,7 @@ use core::ops::{Deref, DerefMut};
 /// Transparent wrapper for [`Clone`]able types to support all [traits](crate::traits) (by cloning).
 ///
 /// ```rust
-/// # use ownable::{AsClone, IntoOwned, ToBorrowed, ToOwned};
+/// # use ownable_core::{AsClone, IntoOwned, ToBorrowed, ToOwned};
 /// # use std::borrow::Cow;
 /// # use std::collections::HashMap;
 /// // Simple struct which uses a `String` with the help of `AsClone`.

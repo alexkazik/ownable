@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "ownable",
+  "ownable-core",
   "ownable-macro",
 ]
 resolver = "2"
