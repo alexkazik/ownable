@@ -11,13 +11,9 @@ categories = ["rust-patterns", "no-std"]
 rust-version = "1.63.0"
 
 [dependencies]
+ownable-core = { version = "1.0", path = "../ownable-core", default-features = false }
 ownable-macro = { version = "0.6", path = "../ownable-macro" }
 
 [features]
 default = ['std']
-std = []
-
-[package.metadata.docs.rs]
-all-features = true
-# enable unstable features in the documentation
-rustdoc-args = ["--cfg", "docsrs"]
+std = ["ownable-core/std"]

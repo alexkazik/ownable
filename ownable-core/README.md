@@ -1,9 +1,14 @@
-[![crates.io](https://img.shields.io/crates/v/ownable-macro.svg)](https://crates.io/crates/ownable-macro)
-[![License](https://img.shields.io/crates/l/ownable-macro.svg)](#license)
+[![crates.io](https://img.shields.io/crates/v/ownable-core.svg)](https://crates.io/crates/ownable-core)
+[![License](https://img.shields.io/crates/l/ownable-core.svg)](#license)
 
-# Procedural macros for the ownable crate
+# Core traits and types for the ownable crate
 
-Please see [ownable](https://docs.rs/ownable).
+Please see the [ownable](https://docs.rs/ownable) crate for a more comprehensive overview.
+
+This crate contains the core types and traits used by `ownable` available without all of the
+macro related dependencies that get used for the derive macros. If you don't rely on the derive
+macros then you may benefit from pulling in fewer dependencies by relying directly on
+`ownable-core`.
 
 ## License
 
