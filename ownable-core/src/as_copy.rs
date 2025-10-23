@@ -9,14 +9,15 @@ use core::ops::{Deref, DerefMut};
 /// Transparent wrapper for [`Copy`]able types to support all [traits](crate::traits) (by copying).
 ///
 /// ```rust
-/// # use ownable_core::{AsCopy, IntoOwned, ToBorrowed, ToOwned};
-/// # use std::borrow::Cow;
-/// # use std::collections::HashMap;
-/// # use std::net::Ipv4Addr;
-/// // Simple struct which uses `Ipv4Addr` with the help of `AsCopy`.
-/// // As an alternative it's possible to impl the ownable traits by hand (for own types, not `Ipv4Addr`).
-/// #[derive(IntoOwned, ToBorrowed, ToOwned)]
-/// struct MyMap<'a>(HashMap<AsCopy<Ipv4Addr>, Cow<'a, str>>);
+/// use ownable_core::{AsCopy, traits::IntoOwned};
+///
+/// #[derive(Clone, Copy)]
+/// struct NotIntoOwned;
+///
+/// fn requires_to_owned<O: IntoOwned>() {}
+///
+/// // `AsCopy<NotIntoOwned>` implements `IntoOwned` through `Copy`
+/// requires_to_owned::<AsCopy<NotIntoOwned>>();
 /// ```
 ///
 /// All trait impls work on the inner value as if there is no layer in between
