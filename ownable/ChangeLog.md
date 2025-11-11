@@ -1,5 +1,9 @@
 # Changelog for ownable
 
+## 1.0.0 -- 2025-11-12
+
+* Moved traits to ownable-core
+
 ## 0.6.2 -- 2024-02-04
 
 * Support arrays
