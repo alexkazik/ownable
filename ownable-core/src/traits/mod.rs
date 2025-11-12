@@ -1,10 +1,3 @@
-//! These traits are the internals, which are used by the derive macros.
-//!
-//! There are intended to be always used qualified (in order to not conflict with the derived
-//! functions and other traits/functions with an identical name).
-//!
-//! See [crate] for more information.
-
 use alloc::borrow::Cow;
 use alloc::boxed::Box;
 use alloc::collections::BTreeMap;

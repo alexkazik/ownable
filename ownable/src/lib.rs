@@ -1,11 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(docsrs, feature(doc_cfg))]
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
 #![warn(clippy::pedantic)]
-#![allow(clippy::inline_always)]
 #![allow(rustdoc::redundant_explicit_links)]
-#![allow(clippy::unconditional_recursion)]
 
 //! # Derive macro for structs/enums with Cow
 //!
@@ -201,11 +198,7 @@
 
 extern crate alloc;
 
-pub use crate::as_clone::AsClone;
-pub use crate::as_copy::AsCopy;
+pub use ownable_core::{AsClone, AsCopy};
 pub use ownable_macro::{IntoOwned, ToBorrowed, ToOwned};
 
-mod as_clone;
-mod as_copy;
-mod as_impl;
 pub mod traits;

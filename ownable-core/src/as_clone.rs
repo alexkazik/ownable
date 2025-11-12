@@ -7,16 +7,19 @@ use core::fmt::{Debug, Display, Formatter};
 use core::hash::{Hash, Hasher};
 use core::ops::{Deref, DerefMut};
 
-/// Transparent wrapper for [`Clone`]able types to support all [traits](crate::traits) (by cloning).
+/// Transparent wrapper for [`Clone`]able types to support all traits (by cloning).
 ///
 /// ```rust
-/// # use ownable::{AsClone, IntoOwned, ToBorrowed, ToOwned};
-/// # use std::borrow::Cow;
-/// # use std::collections::HashMap;
-/// // Simple struct which uses a `String` with the help of `AsClone`.
-/// // As an alternative it's possible to impl the ownable traits by hand (for own types, not `String`).
-/// #[derive(IntoOwned, ToBorrowed, ToOwned)]
-/// struct MyMap<'a>(HashMap<AsClone<String>, Cow<'a, str>>);
+/// # use ownable_core::{AsClone, IntoOwned};
+/// #[derive(Clone)]
+/// struct NotIntoOwned;
+///
+/// fn requires_into_owned<O: IntoOwned>(o: O) {
+///   // do stuff
+/// }
+///
+/// // `AsClone<NotIntoOwned>` implements `IntoOwned` through `Clone`
+/// requires_into_owned(AsClone(NotIntoOwned));
 /// ```
 ///
 /// All trait impls work on the inner value as if there is no layer in between
