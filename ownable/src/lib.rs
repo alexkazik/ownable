@@ -187,13 +187,13 @@
 //! With defaults (includes `std`):
 //! ```toml
 //! [dependencies]
-//! ownable = "0.6"
+//! ownable = "1.0"
 //! ```
 //!
 //! With `no_std` (but still requires alloc):
 //! ```toml
 //! [dependencies]
-//! ownable = { version = "0.6", default-features = false }
+//! ownable = { version = "1.0", default-features = false }
 //! ```
 
 extern crate alloc;

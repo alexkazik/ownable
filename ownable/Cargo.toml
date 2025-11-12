@@ -1,6 +1,6 @@
 [package]
 name = "ownable"
-version = "0.6.2"
+version = "1.0.0"
 authors = ["ALeX Kazik <alex@kazik.de>"]
 edition = "2021"
 description = "Derive macro for structs/enums with Cow, which can convert Type<'a> to Type<'static> and more"
@@ -12,7 +12,7 @@ rust-version = "1.63.0"
 
 [dependencies]
 ownable-core = { version = "1.0", path = "../ownable-core", default-features = false }
-ownable-macro = { version = "0.6", path = "../ownable-macro" }
+ownable-macro = { version = "1.0", path = "../ownable-macro" }
 
 [features]
 default = ['std']

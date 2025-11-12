@@ -1,5 +1,9 @@
 # Changelog for ownable-macro
 
+## 1.0.0 -- 2025-11-12
+
+* Moved traits from ownable to ownable-core
+
 ## 0.6.3 -- 2025-10-20
 
 * Small fixes
